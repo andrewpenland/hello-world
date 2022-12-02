@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.plot.ly/plotly-2.16.1.min.js"></script>
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript" async
+  src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
+
+<title>Strategy</title>
+</head>
+<body>
+
+<h1> Strategy </h1>
+
+<em> "You got to know when to hold 'em, know when to fold 'em, know when to walk away, and know when to run." <br>
+  -- Kenny Rogers, "The Gambler" </em> <br>
+
+<h2>Playing the Game</h2>
+
+
+<label for="winprob"> Probability of winning: </label>
+<input id="probslide" type="text" value = 0.5>
+<br>
+<label for="multamount">Benefit for winning: </label>
+<input type="text" value = 1.0 id="multamount" name="multamount">
+<br>
+<label for="numturns"> Number of turns: </label>
+<input type="text" value = 100 id="numturns" name="numturns">
+<br>
+<label for="betslide"> Proportion to bet: </label>
+<input id="betslide" type="text" value = 0.5>
+<br>
+<input id="clickMe" type="button" value="Play Game" onclick="generateGraph();" />
+
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+<script>
+
+var peaks = [];
+var finalVals = [];
+
+var maxPeak = 0;
+var avePeak = 0;
+var maxFinal = 0;
+var aveFinal = 0;
+
+var peakStrPrefix = "Maximum value: "
+var finalStrPrefix = "Final value: "
+
+var current_index = 0;
+
+function flipCoin(probability, multiplier, betSize){
+  flip = Math.random();
+  if(flip < probability){
+    winnings = (1 + multiplier) * betSize;
+    return winnings;
+  }
+  else{
+    winnings = 0;
+    return winnings;
+  }
+}
+
+function playGame(probability, multiplier, betProp, numTurns){
+  const trajectory = [];
+  trajectory[0] = 1;
+  bankRoll = 1;
+  for (let i = 1; i < numTurns; i++) {
+       betSize = bankRoll * betProp;
+       keptInHand = bankRoll - betSize;
+       resultOfPlay = flipCoin(probability, multiplier, betSize);
+       bankRoll = keptInHand + resultOfPlay;
+       trajectory[i] = bankRoll;
+    }
+    return trajectory;
+}
+
+function generateGraph(){
+
+ var PROBABILITY = parseFloat(document.getElementById("probslide").value);
+ var MULTIPLIER = parseFloat(document.getElementById("multamount").value);
+ var BETPROP = document.getElementById("betslide").value;
+ let NUMTURNS = parseInt(document.getElementById("numturns").value);
+
+ const turnNumber = [];
+ for (let i = 0; i < NUMTURNS; i++){
+   turnNumber[i] = i;
+ }
+ winnings = playGame(PROBABILITY, MULTIPLIER, BETPROP, NUMTURNS);
+
+  var finalVal = winnings[NUMTURNS - 1];
+  var peakVal = Math.max(winnings);
+  var finalValStr = finalStrPrefix.concat(finalVal.toString());
+  var peakValStr = peakStrPrefix.concat(peakVal.toString());
+
+var trace1 = {
+  x: turnNumber,
+  y: winnings,
+  mode: 'lines+markers',
+  type: 'scatter'
+};
+
+// var finalVal = winnings[NUMTURNS - 1];
+var maxVal = Math.max(winnings);
+var data = [trace1];
+
+Plotly.newPlot('my_dataviz', data);
+
+// finalVals[current_index] = winnings[NUMTURNS];
+// peaks[current_index] = Math.max(winnings);
+
+// winnings_avg = total / winnings.length;
+
+// maxPeak = Math.max(peaks);
+
+ // var totalPeaks = 0;
+ // for (var j = 0; j < peaks.length; j++){
+//   totalPeaks = totalPeaks + peaks[j];
+ // }
+ // var peaksAve = totalPeaks/peaks.length;
+
+ // meanPeak = peaksAve;
+
+ // maxFinal = Math.max(finalVals);
+
+ // totalFinal = 0;
+ //for (var k = 0; k < finalVals.length; k ++){
+//   totalFinal = totalFinal + finalVals[k];
+// }
+// var finalAve = totalFinal/finalVals.length;
+
+// meanFinal = totalFinal/finalVals.length;
+// current_index = current_index + 1;
+
+}
+</script>
+
+
+
+<!--Obviously, when choosing a strategy, it should be a function of the win probability $p$. What's the **best strategy** to employ? This question was considered in a seminal 1956 paper by [John Kelly, Jr.](https://en.wikipedia.org/wiki/John_Larry_Kelly_Jr.) entitled ["A New Interpretation of Information Rate"](https://www.princeton.edu/~wbialek/rome/refs/kelly_56.pdf), (**to-consider:** mention Kelly's role.), in which he developed the now-famous [Kelly Criterion](https://en.wikipedia.org/wiki/Kelly_criterion) for games wh--->
+
+
+<!--**Kelly Criterion for Betting on a Game (like BiasedCoinFlip):** If a player knows the probability of winning is $p$ and that a win will return $b$ times the original bet, the best strategy bet the percentage $$p - \frac{1-p}{b}$$ of the total amount on each turn.--->
+
+
+</script>
+
+</body>
+</html>
